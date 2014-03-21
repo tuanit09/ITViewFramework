@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface UIView (ITViewUtils)
+#define UIViewAutoresizingFlexibleSize (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight)
 
+@interface UIView (ITViewUtils)
+// load and return view from nib
++(id)viewWithNibName:(NSString *)name;
 @end

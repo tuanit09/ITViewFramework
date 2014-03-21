@@ -9,5 +9,8 @@
 #import "UIView+ITViewUtils.h"
 
 @implementation UIView (ITViewUtils)
-
++(id)viewWithNibName:(NSString *)name
+{
+    return [[[NSBundle mainBundle] loadNibNamed:name? name : NSStringFromClass([self class]) owner:nil options:nil] lastObject];
+}
 @end
