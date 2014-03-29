@@ -7,14 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-
-typedef struct ITEdgeMargin
-{
-    CGFloat left;
-    CGFloat top;
-    CGFloat right;
-    CGFloat bottom;
-}ITEdgeMargin;
+#import "UIView+ITViewUtils.h"
 
 typedef enum ITScrollViewLayoutStyle ITScrollViewLayoutStyle;
 

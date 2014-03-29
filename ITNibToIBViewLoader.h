@@ -8,12 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface NSArray (ITNibToIBViewLoader)
--(void)loadNibName:(NSString *)name;
--(NSArray *)loadedViews;
-@end
-
 @interface ITNibToIBViewLoader : UIView
 @property (strong, nonatomic, readonly) UIView *loadedView;
-@property (strong, nonatomic, setter = loadNibName:) NSString *loadedNibName;
+-(void)loadNibName:(NSString *)nibName;
 @end

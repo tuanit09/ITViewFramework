@@ -58,7 +58,10 @@ ITEdgeMargin const ITEdgeMarginZero = {0., 0., 0., 0.};
 
 -(void)reloadLayoutWithStyle:(ITScrollViewLayoutStyle)layoutStyle
 {
+    // clear subview
     [self clearContent];
+    _layoutStyle = layoutStyle;
+    // add new view items
     NSInteger numberOfItem = [self.dataSource numberOfItemInITScrollView:self];
     if (numberOfItem > 0) {
         _scrollViewItems = [NSMutableArray arrayWithCapacity:numberOfItem];
@@ -68,30 +71,60 @@ ITEdgeMargin const ITEdgeMarginZero = {0., 0., 0., 0.};
             [_scrollViewItems addObject:itemView];
         }
     }
+    // layout view items
+    [self layoutViewItems];
 }
 
--(CGRect)frameForViewAtIndex:(NSInteger)idx
+-(void)layoutViewItems
 {
-    ITEdgeMargin margin = ITEdgeMarginZero;
+    // initital value
+    CGFloat positionX = 0.;
+    CGFloat positionY = 0.;
+    CGFloat contentSizeWidth = 0.;
+    CGFloat contentSizeHeight = 0.;
+    ITEdgeMargin margin;
 
-    if ([self.dataSource respondsToSelector:@selector(ITScrollView:marginForViewAtIndex:)]) {
-        margin = [self.dataSource ITScrollView:self marginForViewAtIndex:idx];
-    }
-    CGSize size = [[_scrollViewItems objectAtIndex:idx] frame].size;
-    if (ITScrollViewLayoutStyleFullFrameMask(self.layoutStyle)) {
-        size = CGSizeMake(self.frame.size.width - (margin.left + margin.right), self.frame.size.height - (margin.top + margin.bottom));
-    }
-    else if ([self.dataSource respondsToSelector:@selector(ITScrollView:sizeForViewAtIndex:)])
-    {
-        size = [self.dataSource ITScrollView:self sizeForViewAtIndex:idx];
+    for (NSInteger idx = 0; idx < [_scrollViewItems count]; idx++) {
+        // calculate margin
+        margin = ITEdgeMarginZero;
+        if ([self.dataSource respondsToSelector:@selector(ITScrollView:marginForViewAtIndex:)]) {
+            margin = [self.dataSource ITScrollView:self marginForViewAtIndex:idx];
+        }
+        // Item to work on
+        UIView *itemView = [_scrollViewItems objectAtIndex:idx];
+        // calculate size
+        CGSize size = itemView.frame.size;
+        if (ITScrollViewLayoutStyleFullFrameMask(self.layoutStyle)) {
+            size = CGSizeMake(self.frame.size.width - (margin.left + margin.right), self.frame.size.height - (margin.top + margin.bottom));
+        }
+        else if ([self.dataSource respondsToSelector:@selector(ITScrollView:sizeForViewAtIndex:)])
+        {
+            size = [self.dataSource ITScrollView:self sizeForViewAtIndex:idx];
+        }
+        // calculate frame
+        CGRect frame = CGRectMake(positionX + margin.left, positionY + margin.top, size.width, size.height);
+        itemView.frame = frame;
+        // calculate content size
+        contentSizeWidth = positionX + margin.right;
+        contentSizeHeight = positionY + margin.bottom;
+        // calculate position for next item
+        if (ITScrollViewLayoutStyleHorizontalMask(_layoutStyle)) {
+            positionX = contentSizeWidth;
+        }
+        else
+        {
+            positionY = contentSizeHeight;
+        }
     }
 
-    return CGRectZero;
+    // setcontentsize
+    [self setContentSize:CGSizeMake(contentSizeWidth, contentSizeHeight)];
 }
 
 -(void)setFrame:(CGRect)frame
 {
     [super setFrame:frame];
+    [self layoutViewItems];
 }
 
 -(void)dealloc
